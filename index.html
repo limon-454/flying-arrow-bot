@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FA AI ASSISTANT</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+background:#080d18;
+color:white;
+font-family:Arial,sans-serif;
+min-height:100vh
+}
+
+header{
+padding:18px;
+background:#101a2d;
+border-bottom:1px solid #263752;
+display:flex;
+justify-content:space-between;
+align-items:center
+}
+
+.brand{font-size:18px;font-weight:bold;color:#54d6ff}
+.status{color:#43e69b;font-size:12px}
+
+main{
+max-width:750px;
+margin:auto;
+padding:20px 15px 125px
+}
+
+.welcome{text-align:center;padding:35px 10px}
+
+.logo{
+width:75px;height:75px;
+margin:0 auto 18px;
+border-radius:24px;
+background:linear-gradient(135deg,#087cff,#08d8cf);
+display:grid;
+place-items:center;
+font-size:25px;
+font-weight:bold
+}
+
+h1{font-size:27px;margin-bottom:10px}
+
+.welcome p{
+color:#9baac0;
+line-height:1.6;
+font-size:14px
+}
+
+.modes{
+display:flex;
+gap:10px;
+margin:10px 0 20px
+}
+
+.mode{
+flex:1;
+padding:14px 8px;
+border-radius:13px;
+background:#111e32;
+border:1px solid #304766;
+color:white;
+font-size:14px
+}
+
+.mode.active{
+background:#075b91;
+border-color:#54d6ff
+}
+
+#chat{
+display:flex;
+flex-direction:column;
+gap:15px
+}
+
+.message{
+max-width:88%;
+padding:13px 15px;
+border-radius:15px;
+line-height:1.6;
+font-size:14px;
+white-space:pre-wrap;
+overflow-wrap:anywhere
+}
+
+.user{align-self:flex-end;background:#086cbd}
+
+.bot{
+align-self:flex-start;
+background:#14233a;
+border:1px solid #263c5b
+}
+
+.suggestions{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+margin-top:15px
+}
+
+.suggestion{
+background:#111e32;
+border:1px solid #263b58;
+border-radius:13px;
+padding:15px;
+color:#dce9ff;
+text-align:left;
+font-size:13px
+}
+
+.input-area{
+position:fixed;
+bottom:0;left:0;right:0;
+background:#0c1525;
+border-top:1px solid #263752;
+padding:13px
+}
+
+.input-box{
+max-width:750px;
+margin:auto;
+display:flex;
+gap:9px;
+align-items:center
+}
+
+input{
+flex:1;
+min-width:0;
+padding:15px;
+background:#17243a;
+border:1px solid #304766;
+border-radius:13px;
+color:white;
+outline:none;
+font-size:14px
+}
+
+button{
+border:none;
+cursor:pointer;
+border-radius:12px;
+font-size:17px
+}
+
+#send{
+background:#087cff;
+color:white;
+padding:13px 17px
+}
+
+#mic{
+background:#17243a;
+border:1px solid #304766;
+color:white;
+padding:13px
+}
+
+#mic.listening{
+background:#a51f35;
+border-color:#ff6178
+}
+
+#voicePanel{
+display:none;
+text-align:center;
+padding:25px 10px
+}
+
+#voicePanel.show{display:block}
+
+#voicePanel p{
+color:#a8bad2;
+font-size:14px;
+line-height:1.7;
+margin:12px 0
+}
+
+#voiceStart{
+width:85px;
+height:85px;
+border-radius:50%;
+background:linear-gradient(135deg,#087cff,#08d8cf);
+color:white;
+font-size:32px;
+margin:15px auto
+}
+
+#voiceStart.listening{
+background:#c52c48;
+animation:pulse 1s infinite
+}
+
+@keyframes pulse{
+50%{transform:scale(1.08)}
+}
+
+#voiceStop{
+background:#253650;
+color:white;
+padding:12px 20px;
+font-size:13px
+}
+
+footer{
+text-align:center;
+color:#71839e;
+font-size:11px;
+margin-top:25px
+}
+
+.hidden{display:none!important}
+
+@media(max-width:420px){
+.suggestions{grid-template-columns:1fr}
+h1{font-size:23px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="brand">⚡ FA AI ASSISTANT</div>
+<div class="status">● AI Online</div>
+</header>
+
+<main>
+
+<section class="welcome" id="welcome">
+<div class="logo">FA</div>
+<h1>কেমন আছেন?</h1>
+<p>
+আমি FLYING ARROW E-SPORTS AI Assistant।<br>
+আপনার পছন্দের মাধ্যমে কথা বলুন।
+</p>
+</section>
+
+<div class="modes">
+<button class="mode active" id="textMode">
+💬 Text Chat
+</button>
+
+<button class="mode" id="voiceMode">
+🎙️ Voice Chat
+</button>
+</div>
+
+<section id="textPanel">
+
+<section class="suggestions" id="suggestions">
+
+<button class="suggestion" onclick="quickAsk('FLYING ARROW-এ স্লট কীভাবে কিনব?')">
+🎮 স্লট কীভাবে কিনব?
+</button>
+
+<button class="suggestion" onclick="quickAsk('এখানে Owner, Admin এবং Host কারা?')">
+👑 Owner / Admin কে?
+</button>
+
+<button class="suggestion" onclick="quickAsk('Point Maker-এর কাজ কী?')">
+📊 Point Maker কী?
+</button>
+
+<button class="suggestion" onclick="quickAsk('Free Fire সম্পর্কে আমাকে কিছু বলুন।')">
+🔥 Free Fire সম্পর্কে জানুন
+</button>
+
+</section>
+
+<section id="chat"></section>
+
+</section>
+
+<section id="voicePanel">
+
+<div class="logo">FA</div>
+
+<h2>Voice Conversation</h2>
+
+<p id="voiceStatus">
+মাইক্রোফোনে চাপ দিয়ে কথা বলুন।
+</p>
+
+<button id="voiceStart">🎙️</button>
+
+<p>
+একবার চাপ দিয়ে কথা বলুন।<br>
+কথা শেষ হলে AI আপনাকে উত্তর দেবে।
+</p>
+
+<button id="voiceStop">⏹ ভয়েস বন্ধ করুন</button>
+
+<div id="voiceChat" style="margin-top:25px;text-align:left"></div>
+
+</section>
+
+<footer>Powered by FLYING ARROW E-SPORTS</footer>
+
+</main>
+
+<div class="input-area" id="textInputArea">
+<div class="input-box">
+
+<input id="message"
+type="text"
+placeholder="আপনার প্রশ্ন লিখুন..."
+autocomplete="off">
+
+<button id="send">➤</button>
+
+</div>
+</div>
+
+<script>
+
+const SUPABASE_URL="https://kiakrrukmqvbpyqaqnxq.supabase.co";
+
+const SUPABASE_ANON_KEY="sb_publishable_Uo_MfPJlGNsbhXIX8r32yA_UC8SJt4v";
+
+const input=document.getElementById("message");
+const chat=document.getElementById("chat");
+const sendButton=document.getElementById("send");
+
+const textMode=document.getElementById("textMode");
+const voiceMode=document.getElementById("voiceMode");
+
+const textPanel=document.getElementById("textPanel");
+const voicePanel=document.getElementById("voicePanel");
+const textInputArea=document.getElementById("textInputArea");
+
+const voiceStart=document.getElementById("voiceStart");
+const voiceStop=document.getElementById("voiceStop");
+const voiceStatus=document.getElementById("voiceStatus");
+const voiceChat=document.getElementById("voiceChat");
+
+let currentMode="text";
+let recognition=null;
+let isListening=false;
+
+/* MESSAGE DISPLAY */
+
+function addMessage(text,type,container=chat){
+
+document.getElementById("welcome").style.display="none";
+
+const div=document.createElement("div");
+div.className="message "+type;
+div.textContent=text;
+
+container.appendChild(div);
+
+window.scrollTo(0,document.body.scrollHeight);
+
+return div;
+
+}
+
+/* SWITCH MODE */
+
+function switchMode(mode){
+
+currentMode=mode;
+
+window.speechSynthesis?.cancel();
+
+if(recognition){
+try{recognition.stop();}catch(e){}
+}
+
+isListening=false;
+voiceStart.classList.remove("listening");
+voiceStart.textContent="🎙️";
+
+if(mode==="text"){
+
+textMode.classList.add("active");
+voiceMode.classList.remove("active");
+
+textPanel.classList.remove("hidden");
+voicePanel.classList.remove("show");
+
+textInputArea.style.display="block";
+
+}else{
+
+voiceMode.classList.add("active");
+textMode.classList.remove("active");
+
+textPanel.classList.add("hidden");
+voicePanel.classList.add("show");
+
+textInputArea.style.display="none";
+
+}
+
+}
+
+textMode.addEventListener("click",()=>switchMode("text"));
+voiceMode.addEventListener("click",()=>switchMode("voice"));
+
+/* GEMINI REQUEST */
+
+async function askAI(message,container,voiceReply=false){
+
+const loading=addMessage("উত্তর তৈরি হচ্ছে...","bot",container);
+
+try{
+
+const response=await fetch(
+SUPABASE_URL+"/functions/v1/bright-endpoint",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"apikey":SUPABASE_ANON_KEY,
+"Authorization":"Bearer "+SUPABASE_ANON_KEY
+},
+body:JSON.stringify({message})
+}
+);
+
+const data=await response.json();
+
+if(!response.ok){
+throw new Error(data.error||"AI সংযোগে সমস্যা হয়েছে।");
+}
+
+const answer=data.answer||"উত্তর পাওয়া যায়নি।";
+
+loading.textContent=answer;
+
+if(voiceReply){
+speakAnswer(answer);
+}
+
+}catch(error){
+
+loading.textContent="দুঃখিত! AI সংযোগে সমস্যা হয়েছে: "+error.message;
+
+voiceStatus.textContent="আবার চেষ্টা করুন।";
+
+}
+
+window.scrollTo(0,document.body.scrollHeight);
+
+}
+
+/* TEXT CHAT */
+
+async function sendMessage(){
+
+const message=input.value.trim();
+
+if(!message)return;
+
+input.value="";
+
+addMessage(message,"user");
+
+sendButton.disabled=true;
+
+await askAI(message,chat,false);
+
+sendButton.disabled=false;
+
+}
+
+function quickAsk(text){
+
+input.value=text;
+sendMessage();
+
+}
+
+sendButton.addEventListener("click",sendMessage);
+
+input.addEventListener("keydown",function(event){
+
+if(event.key==="Enter")sendMessage();
+
+});
+
+/* VOICE OUTPUT */
+
+function speakAnswer(text){
+
+if(!("speechSynthesis" in window)){
+
+voiceStatus.textContent="আপনার ব্রাউজারে Voice Output সমর্থিত নয়।";
+
+return;
+
+}
+
+window.speechSynthesis.cancel();
+
+const utterance=new SpeechSynthesisUtterance(
+text.replace(/[*_#`]/g," ")
+);
+
+utterance.lang="bn-BD";
+utterance.rate=0.95;
+utterance.pitch=1;
+utterance.volume=1;
+
+utterance.onstart=function(){
+voiceStatus.textContent="🔊 AI কথা বলছে...";
+};
+
+utterance.onend=function(){
+voiceStatus.textContent="AI-এর উত্তর শেষ। আবার কথা বলতে মাইক্রোফোন চাপুন।";
+};
+
+utterance.onerror=function(){
+voiceStatus.textContent="ভয়েস চালাতে সমস্যা হয়েছে।";
+};
+
+const voices=window.speechSynthesis.getVoices();
+
+const bnVoice=voices.find(v=>
+v.lang.toLowerCase().startsWith("bn")
+);
+
+if(bnVoice){
+utterance.voice=bnVoice;
+}
+
+window.speechSynthesis.speak(utterance);
+
+}
+
+/* VOICE INPUT */
+
+function startVoice(){
+
+const SpeechRecognition=
+window.SpeechRecognition||
+window.webkitSpeechRecognition;
+
+if(!SpeechRecognition){
+
+alert("এই ব্রাউজারে Voice Recognition সমর্থিত নয়। Chrome ব্যবহার করুন।");
+
+return;
+
+}
+
+if(isListening)return;
+
+window.speechSynthesis?.cancel();
+
+recognition=new SpeechRecognition();
+
+recognition.lang="bn-BD";
+recognition.continuous=false;
+recognition.interimResults=false;
+
+isListening=true;
+
+voiceStart.classList.add("listening");
+voiceStart.textContent="🔴";
+
+voiceStatus.textContent="আপনার কথা শুনছি...";
+
+recognition.onresult=async function(event){
+
+const message=event.results[0][0].transcript;
+
+voiceStatus.textContent="আপনার কথা: "+message;
+
+addMessage(message,"user",voiceChat);
+
+await askAI(message,voiceChat,true);
+
+};
+
+recognition.onerror=function(event){
+
+voiceStatus.textContent=
+"ভয়েস বুঝতে সমস্যা হয়েছে: "+event.error;
+
+};
+
+recognition.onend=function(){
+
+isListening=false;
+
+voiceStart.classList.remove("listening");
+voiceStart.textContent="🎙️";
+
+};
+
+try{
+
+recognition.start();
+
+}catch(error){
+
+isListening=false;
+voiceStart.classList.remove("listening");
+voiceStart.textContent="🎙️";
+
+voiceStatus.textContent="মাইক্রোফোন চালু করা যায়নি। আবার চেষ্টা করুন।";
+
+}
+
+}
+
+voiceStart.addEventListener("click",startVoice);
+
+/* STOP VOICE */
+
+voiceStop.addEventListener("click",function(){
+
+if(recognition){
+
+try{recognition.stop();}catch(e){}
+
+}
+
+window.speechSynthesis?.cancel();
+
+isListening=false;
+
+voiceStart.classList.remove("listening");
+voiceStart.textContent="🎙️";
+
+voiceStatus.textContent="Voice বন্ধ করা হয়েছে। আবার কথা বলতে মাইক্রোফোন চাপুন।";
+
+});
+
+</script>
+
+</body>
+</html>
